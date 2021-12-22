@@ -10,8 +10,12 @@ require("dotenv").config();
 
 const app = express();
 const server = http.createServer(app);
-
-const io = new Server(server);
+const options = {
+  cors: {
+    origin: '*',
+  },
+};
+const io = new Server(server,options);
 
 const socket = require("../sockets");
 
@@ -21,11 +25,11 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-// app.use(
-//   helmet({
-//       contentSecurityPolicy: false,
-//   })
-// );
+app.use(
+  helmet({
+      contentSecurityPolicy: false,
+  })
+);
 
 app.disable("x-powered-by");
 

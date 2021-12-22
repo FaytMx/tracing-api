@@ -1,0 +1,113 @@
+<style>
+  #map-canvas {
+    height: 50vh;
+    width: 100%;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .steps {
+    padding: 24px 0;
+    position: relative;
+    margin: auto;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 24px;
+    width: 1px;
+    background-color: rgba(0, 0, 0, 0.2);
+    left: calc(50px / 2);
+    z-index: 1;
+  }
+
+  .steps::after {
+    content: '';
+    position: absolute;
+    height: 13px;
+    width: 13px;
+    background-color: var(--primary-color);
+    box-shadow: 0px 0px 5px 0px var(--primary-color);
+    border-radius: 15px;
+    left: calc(50px / 2);
+    bottom: 24px;
+    transform: translateX(-45%);
+    z-index: 2;
+  }
+
+  .step {
+    padding: 0 20px 24px 50px;
+    position: relative;
+    transition: all 0.4s ease-in-out;
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    height: 13px;
+    width: 13px;
+    background-color: rgb(198, 198, 198);
+    border-radius: 15px;
+    left: calc(50px / 2);
+    transform: translateX(-45%);
+    z-index: 2;
+  }
+
+  .step::after {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    background-color: rgb(198, 198, 198);
+    left: calc(50px / 2);
+    top: 0;
+    z-index: 1;
+  }
+</style>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-6">Seguimiento de envio en iVoy</div>
+    <div class="col-6 text-end">LALEO.com</div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <google-map height="50vh" width="100%" [center]="center" [zoom]="zoom"></google-map>
+    </div>
+  </div>
+  <div class="row mt-2">
+    <div class="col-1">
+      <img src="http://localhost:3000/person.png" width="80">
+      <p><i class="fa-solid fa-user"></i> Mi usuario</p>
+      <p>Tel: 5525222989</p>
+    </div>
+    <div class="col-2">
+      <p>Distancia: 120 km</p>
+      <p>Tiempo: <i class="fa-regular fa-clock"></i> 43 min</p>
+    </div>
+    <div class="col-4">
+      <div class="steps" id="steps">
+
+      </div>
+    </div>
+    <div class="col-3">
+      <p> Estado: <span id="ultimo_estado"></span></p>
+      <p><i class="fa-solid fa-motorcycle" style="font-size: 4rem;"></i>Moto sin caja</p>
+      <p>Lorem ipsum dolor sit amet</p>
+    </div>
+    <div class="col-1">
+      <p><i class="fa-solid fa-user-tie" style="font-size: 4rem;"></i></p>
+      <p>Lorem ipsum dolor</p>
+      <p>456346 63</p>
+      <p>Lorem ipsum dolor</p>
+    </div>
+  </div>
+
+</div>
