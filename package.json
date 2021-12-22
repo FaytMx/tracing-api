@@ -1,0 +1,15 @@
+{
+  "name": "tracing-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "FaytMX",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "delay": "^5.0.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "morgan": "^1.10.0",
+    "socket.io": "^4.4.0"
+  }
+}
