@@ -1,78 +1,94 @@
+const delay = require("delay");
+const { Socket } = require("socket.io");
+const data = require("../db/orderRoute.json");
 
+const points = [
+ 
+  { lat: "19.38089", lng: "-99.15717000000001" },
+  { lat: "19.380650000000003", lng: "-99.15569" },
+  { lat: "19.38023", lng: "-99.15322" },
+  { lat: "19.379910000000002", lng: "-99.15119000000001" },
+  { lat: "19.379430000000003", lng: "-99.14869" },
+  { lat: "19.379330000000003", lng: "-99.14817000000001" },
+  { lat: "19.380110000000002", lng: "-99.14801000000001" },
+  { lat: "19.381420000000002", lng: "-99.14775" },
+  { lat: "19.38241", lng: "-99.14764000000001" },
+  { lat: "19.384", lng: "-99.14746000000001" },
+  { lat: "19.38691", lng: "-99.14713" },
+  { lat: "19.388710000000003", lng: "-99.14691" },
+  { lat: "19.395680000000002", lng: "-99.14600000000002" },
+  { lat: "19.398220000000002", lng: "-99.14568000000001" },
+  { lat: "19.39968", lng: "-99.14550000000001" },
+  { lat: "19.40199", lng: "-99.14518000000001" },
+  { lat: "19.40286", lng: "-99.14509000000001" },
+  { lat: "19.404780000000002", lng: "-99.1449" },
+  { lat: "19.413230000000002", lng: "-99.14404" },
+  { lat: "19.420920000000002", lng: "-99.14325000000001" },
+  { lat: "19.422250000000002", lng: "-99.14312000000001" },
+  { lat: "19.42274", lng: "-99.14305" },
+  { lat: "19.4248", lng: "-99.14254000000001" },
+  { lat: "19.425980000000003", lng: "-99.14223000000001" },
+  { lat: "19.42688", lng: "-99.14202" },
+  { lat: "19.42736", lng: "-99.14193" },
+  { lat: "19.427970000000002", lng: "-99.1418" },
+  { lat: "19.428690000000003", lng: "-99.14170000000001" },
+  { lat: "19.429570000000002", lng: "-99.14157" },
+  { lat: "19.430320000000002", lng: "-99.14146000000001" },
+  { lat: "19.432010000000002", lng: "-99.14124000000001" },
+  { lat: "19.434700000000003", lng: "-99.14080000000001" },
+  { lat: "19.43608", lng: "-99.14059" },
+  { lat: "19.436390000000003", lng: "-99.14236000000001" },
+  { lat: "19.43674", lng: "-99.14409" },
+  { lat: "19.437060000000002", lng: "-99.14556" },
+  { lat: "19.437350000000002", lng: "-99.14682" },
+  { lat: "19.43738", lng: "-99.14699" },
+  { lat: "19.43701", lng: "-99.14757" },
+  { lat: "19.436320000000002", lng: "-99.14863000000001" },
+  { lat: "19.43618", lng: "-99.14886000000001" },
+  { lat: "19.43608", lng: "-99.14907000000001" },
+  { lat: "19.4359", lng: "-99.14943000000001" },
+  { lat: "19.43579", lng: "-99.14975000000001" },
+  { lat: "19.435740000000003", lng: "-99.14988000000001" },
+  { lat: "19.43569", lng: "-99.14991" },
+  { lat: "19.435630000000003", lng: "-99.14995" },
+  { lat: "19.43543", lng: "-99.15026" },
+  { lat: "19.435160000000003", lng: "-99.15076" },
+  { lat: "19.434620000000002", lng: "-99.15189000000001" },
+  { lat: "19.433860000000003", lng: "-99.15350000000001" },
+  { lat: "19.433770000000003", lng: "-99.15368000000001" },
+  { lat: "19.43382", lng: "-99.15399000000001" },
+];
 
-// const orderDeliveryNamespace = io.of('/orders/delivery');
+module.exports = (io) => {
+  io.on("connection", (client) => {
+    console.log("Cliente conectado");
 
+    client.emit("order", data);
 
-// orderDeliveryNamespace.on('connection', function (socket) {
-//     console.log('USUARIO CONECTADO AL NAMESPACE /orders/delivery');
+    client.on("disconnect", () => {
+      console.log("Cliente desconectado");
+    });
 
-//     socket.on('position', function (data) {
-//         console.log('EMITIO', data);
-//       orderDeliveryNamespace.emit(`position/${data.id_order}`, { lat: data.lat, lng: data.lng });
-//     });
+    client.on("mensaje", (payload) => {
+      console.log("Mensaje!!", payload);
 
-//     socket.on('disconnect', function (data) {
-//       console.log('USUARIO DESCONECTADO');
-//     });
-//   });
+      io.emit("mensaje", { admin: "Nuevo mensaje" });
+    });
 
+    client.on("nueva-orden", async (payload) => {
+      console.log("Mensaje!!", payload);
 
-const delay = require('delay');
-const data = require('../db/orderRoute.json');
-
-
-
-module.exports = (io) => { 
-    console.log(io);
-
-    io.on("connection", (client) => {
-        console.log("Cliente conectado");
-      
-        client.emit("order", data);
-      
-        client.on("disconnect", () => {
-          console.log("Cliente desconectado");
-        });
-      
-        client.on("mensaje", (payload) => {
-          console.log("Mensaje!!", payload);
-      
-          io.emit("mensaje", { admin: "Nuevo mensaje" });
-        });
-      
-
-        client.on("nueva-orden",async (payload) => {
-            console.log("Mensaje!!", payload);
-
-            for (const step of data) {
-                console.log(step)
-                io.emit("step", step);
-                await delay(500)
-            }
-        
-          });
-
-        // client.on("emitir-mensaje", (payload) => {
-        //   console.log(payload);
-        //   client.broadcast.emit("nuevo-mensaje", payload);
-        // });
-      
-        // client.on("vote-band", (payload) => {
-        //   bands.voteBand(payload.id);
-        //   io.emit("active-bands", bands.getBands());
-        // });
-      
-        // client.on("add-band", (payload) => {
-        //   const newBand = new Band(payload.name);
-        //   bands.addBand(newBand);
-        //   io.emit("active-bands", bands.getBands());
-        // });
-      
-        // client.on("delete-band", (payload) => {
-        //  console.log(payload)
-        //   bands.deleteBand(payload.id);
-        //   io.emit("active-bands", bands.getBands());
-        // });
-      });
-      
-}
+      for (const step of data) {
+        await delay(500);
+        await io.emit("step", step);
+        if (step.status == "En Ruta de Entrega") {
+          for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            await delay(300);
+            io.emit("point", point);
+          }
+        }
+      }
+    });
+  });
+};

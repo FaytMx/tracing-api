@@ -4,15 +4,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SocketServer</title>
+    <title>iVoy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+        #map-canvas {
+            height: 50vh;
+            width: 100%;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .steps {
+            padding: 24px 0;
+            position: relative;
+            margin: auto;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            height: 24px;
+            width: 1px;
+            background-color: rgba(0, 0, 0, 0.2);
+            left: calc(50px / 2);
+            z-index: 1;
+        }
+
+        .steps::after {
+            content: '';
+            position: absolute;
+            height: 13px;
+            width: 13px;
+            background-color: var(--primary-color);
+            box-shadow: 0px 0px 5px 0px var(--primary-color);
+            border-radius: 15px;
+            left: calc(50px / 2);
+            bottom: 24px;
+            transform: translateX(-45%);
+            z-index: 2;
+        }
+
+        .step {
+            padding: 0 20px 24px 50px;
+            position: relative;
+            transition: all 0.4s ease-in-out;
+        }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            height: 13px;
+            width: 13px;
+            background-color: rgb(198, 198, 198);
+            border-radius: 15px;
+            left: calc(50px / 2);
+            transform: translateX(-45%);
+            z-index: 2;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 1px;
+            background-color: rgb(198, 198, 198);
+            left: calc(50px / 2);
+            top: 0;
+            z-index: 1;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Acceso denegado</h1>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-6">Seguimiento de envio en iVoy</div>
+            <div class="col-6 text-end">LALEO.com</div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div id="map-canvas"></div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-1">
+                <img src="person.png" width="80">
+                <p><i class="fa-solid fa-user"></i> Mi usuario</p>
+                <p>Tel: 5525222989</p>
+            </div>
+            <div class="col-2">
+                <p>Distancia: 120 km</p>
+                <p>Tiempo: <i class="fa-regular fa-clock"></i> 43 min</p>
+            </div>
+            <div class="col-4">
+                <div class="steps" id="steps">
 
-    <script src="/socket.io/socket.io.js"></script>
+                </div>
+            </div>
+            <div class="col-3">
+                <p> Estado: <span id="ultimo_estado"></span></p>
+                <p><i class="fa-solid fa-motorcycle" style="font-size: 4rem;"></i>Moto sin caja</p>
+                <p>Lorem ipsum dolor sit amet</p>
+            </div>
+            <div class="col-1">
+                <p><i class="fa-solid fa-user-tie" style="font-size: 4rem;"></i></p>
+                <p>Lorem ipsum dolor</p>
+                <p>456346 63</p>
+                <p>Lorem ipsum dolor</p>
+            </div>
+        </div>
 
-    <script>
+    </div>
+    </div>
+
+
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+    <script type="text/javascript">
         var socket = io();
 
         socket.on('connect', function () {
@@ -23,16 +141,120 @@
             console.log('Perdimos conexion al servidor')
         });
 
-        socket.emit('mensaje', {
-            nombre: 'Emanuel'
-        });
-
         socket.emit('nueva-orden');
 
+        let step = '';
+        const steps = document.getElementById('steps')
         socket.on("step", function (step) {
+
+            const div = document.createElement('div');
+            div.classList.add('step')
+            div.innerHTML = `
+                        <div class="step-header">
+                            <div class="header">${step.date}</div>
+                            <div class="subheader">${step.status}</div>
+                        </div>
+                    `;
+            steps.appendChild(div);
             console.log(step)
         })
+
+
+        //----------------------------------------------------
+
+        const markers = [
+            { 'lat': '19.3859968', 'lng': '-99.1572127' },
+            { 'lat': '19.433804', 'lng': '-99.153991' }
+        ];
+
+        var map;
+        function initMap() {
+            const mapOptions = {
+                center: new google.maps.LatLng(markers[0].lat, markers[0].lng),
+                zoom: 13,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+
+            map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+            var infoWindow = new google.maps.InfoWindow();
+            var lat_lng = new Array();
+            var latlngbounds = new google.maps.LatLngBounds();
+            for (i = 0; i < markers.length; i++) {
+                var data = markers[i]
+                var myLatlng = new google.maps.LatLng(data.lat, data.lng);
+                lat_lng.push(myLatlng);
+                var marker = new google.maps.Marker({
+                    position: myLatlng,
+                    map: map,
+                });
+
+
+                latlngbounds.extend(marker.position);
+
+            }
+
+            socket.on("point", function (point) {
+                new google.maps.Marker({
+                    position: new google.maps.LatLng(point.lat, point.lng),
+                    map: map,
+                    icon: {
+                        path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                        scale: 5,
+                    },
+                })
+            })
+
+
+            map.setCenter(latlngbounds.getCenter());
+            map.fitBounds(latlngbounds);
+            var path = new google.maps.MVCArray();
+            var service = new google.maps.DirectionsService();
+            var poly = new google.maps.Polyline({
+                map: map,
+                strokeColor: 'red'
+            });
+
+            for (var i = 0; i < lat_lng.length; i++) {
+                if ((i + 1) < lat_lng.length) {
+                    var src = lat_lng[i];
+                    var des = lat_lng[i + 1];
+                    path.push(src);
+                    poly.setPath(path);
+                    service.route({
+                        origin: src,
+                        destination: des,
+                        travelMode: google.maps.DirectionsTravelMode.DRIVING
+                    }, function (result, status) {
+                        if (status == google.maps.DirectionsStatus.OK) {
+
+                            for (var i = 0, len = result.routes[0].overview_path.length; i < len; i++) {
+                                path.push(result.routes[0].overview_path[i]);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        function getCoordinates(result) {
+            var currentRouteArray = result.routes[0];  //Returns a complex object containing the results of the current route
+            var currentRoute = currentRouteArray.overview_path; //Returns a simplified version of all the coordinates on the path
+
+            obj_newPolyline = new google.maps.Polyline({ map: map }); //a polyline just to verify my code is fetching the coordinates
+            var path = [];
+            for (var x = 0; x < currentRoute.length; x++) {
+                var pos = new google.maps.LatLng(currentRoute[x].lat(), currentRoute[x].lng())
+                console.log(currentRoute[x].lat(), currentRoute[x].lng());
+                path.push(pos);
+            }
+
+            return path;
+        }
     </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOFeQXJvHgtCwfnFkdbVAv3fVm2e9jrAE&callback=initMap"
+        async defer></script>
 </body>
 
 </html>
